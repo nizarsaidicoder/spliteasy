@@ -5,7 +5,8 @@ import { UsersModule } from 'src/users/users.module';
 import { JwtModule } from '@nestjs/jwt';
 import { jwtConstants } from './constants';
 import { AuthGuard } from './auth.guard';
-import { APP_GUARD } from '@nestjs/core/constants';
+import { APP_GUARD } from '@nestjs/core';
+import { PrismaModule } from 'src/prisma/prisma.module';
 
 @Module({
   controllers: [AuthController],
@@ -17,6 +18,7 @@ import { APP_GUARD } from '@nestjs/core/constants';
     },
   ],
   imports: [
+    PrismaModule,
     UsersModule,
     JwtModule.register({
       global: true,
