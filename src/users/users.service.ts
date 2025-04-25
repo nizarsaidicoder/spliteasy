@@ -3,6 +3,8 @@ import { User } from './entity/user';
 import { CreateUserDto } from './dto/create-user.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
 import * as bcrypt from 'bcrypt';
+import { UpdateUserDto } from './dto/update-user.decorator';
+import { Prisma } from '.prisma/client';
 
 @Injectable()
 export class UsersService {
@@ -59,6 +61,24 @@ export class UsersService {
     );
   }
 
+  async getOne(id: number): Promise<Omit<User, 'password'> | null> {
+    const user = await this.prismaClient.user.findUnique({
+      where: { id },
+    });
+    if (!user) {
+      throw new NotFoundException(`User with id ${id} not found`);
+    }
+    return {
+      id: user.id,
+      username: user.username,
+      firstName: user.firstName,
+      lastName: user.lastName,
+      email: user.email,
+      createdAt: user.createdAt,
+      updatedAt: user.updatedAt,
+    };
+  }
+
   async create(createUserDto: CreateUserDto): Promise<User> {
     const hashedPassword = await this.hashPassword(createUserDto.password);
     const user = await this.prismaClient.user.create({
@@ -78,6 +98,45 @@ export class UsersService {
       user.email,
       user.password,
     );
+  }
+
+  async update(id: number, updateUserDto: UpdateUserDto): Promise<User> {
+    try {
+      const user = await this.prismaClient.user.findUnique({
+        where: { id },
+      });
+      if (!user) {
+        throw new NotFoundException(`User with id ${id} not found`);
+      }
+
+      const updatedUser = await this.prismaClient.user.update({
+        where: { id },
+        data: {
+          ...updateUserDto,
+          password: updateUserDto.password
+            ? await this.hashPassword(updateUserDto.password)
+            : undefined,
+        },
+      });
+
+      return new User(
+        updatedUser.id,
+        updatedUser.username,
+        updatedUser.firstName,
+        updatedUser.lastName,
+        updatedUser.email,
+        updatedUser.password,
+      );
+    } catch (error) {
+      if (error instanceof Prisma.PrismaClientKnownRequestError) {
+        if (error.code === 'P2002') {
+          throw new NotFoundException(
+            `User with this username or email already exists`,
+          );
+        }
+      }
+      throw error;
+    }
   }
 
   async delete(id: number): Promise<void> {

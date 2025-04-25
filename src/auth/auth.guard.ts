@@ -9,6 +9,7 @@ import { jwtConstants } from './constants';
 import { Request } from 'express';
 import { Reflector } from '@nestjs/core';
 import { IS_PUBLIC_KEY } from './decorators/public.decorator';
+import { UsersService } from 'src/users/users.service';
 
 export type UserPayload = {
   username: string;
@@ -18,6 +19,7 @@ export type UserPayload = {
 export class AuthGuard implements CanActivate {
   constructor(
     private jwtService: JwtService,
+    private userService: UsersService,
     private reflector: Reflector,
   ) {}
 
@@ -39,8 +41,11 @@ export class AuthGuard implements CanActivate {
       const payload: UserPayload = await this.jwtService.verifyAsync(token, {
         secret: jwtConstants.secret,
       });
-      // 💡 We're assigning the payload to the request object here
-      // so that we can access it in our route handlers
+
+      const user = await this.userService.findOneById(payload.sub);
+      if (!user) {
+        throw new UnauthorizedException('User not found');
+      }
       request['user'] = payload;
     } catch {
       throw new UnauthorizedException('Invalid token');
