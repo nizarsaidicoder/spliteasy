@@ -15,13 +15,52 @@ datasource db {
 }
 
 model User {
-  id    Int     @default(autoincrement()) @id
-  username  String  @unique
-  email     String  @unique
-  firstName String
-  lastName  String
-  password  String
-  avatar    String?
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id         Int        @default(autoincrement()) @id
+  username   String     @unique
+  email      String     @unique
+  firstName  String
+  lastName   String
+  password   String
+  avatar     String?
+  createdAt  DateTime   @default(now())
+  updatedAt  DateTime   @updatedAt
+  groups     Group[]    @relation("UserGroups")
+  expenses   Expense[]
+  shares     Share[]
+}
+
+model Group {
+  id         Int        @default(autoincrement()) @id
+  name       String     @unique
+  members    User[]     @relation("UserGroups")
+  createdAt  DateTime   @default(now())
+  updatedAt  DateTime   @updatedAt
+  expenses   Expense[]
+}
+
+model Expense {
+  id          Int        @default(autoincrement()) @id
+  name        String
+  description String?
+  amount      Float
+  date        DateTime   @default(now())
+  groupId     Int
+  userId      Int
+  group       Group      @relation(fields: [groupId], references: [id])
+  user        User       @relation(fields: [userId], references: [id])
+  shares      Share[]
+  
+  @@index([groupId])
+  @@index([userId]) 
+}
+
+model Share {
+  id         Int        @default(autoincrement()) @id
+  userId     Int
+  expenseId  Int
+  amount     Float
+  user       User       @relation(fields: [userId], references: [id])
+  expense    Expense    @relation(fields: [expenseId], references: [id])
+
+  @@unique([userId, expenseId])
 }
