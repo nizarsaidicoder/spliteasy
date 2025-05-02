@@ -48,4 +48,8 @@ export class UsersController {
   ): Promise<User> {
     return this.usersService.update(user.sub, updateUserDto);
   }
+
+  // @Get('me/groups')
+
+  // find a user by username or email
 }
