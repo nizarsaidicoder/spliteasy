@@ -3,6 +3,7 @@ import { Prisma } from '@prisma/client';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { Group } from './entity/group.entity';
 import { CreateGroupDto } from './dto/create-group.dto';
+import { UpdateGroupDto } from './dto/update-group.dto';
 
 @Injectable()
 export class GroupService {
@@ -69,7 +70,7 @@ export class GroupService {
   // PATCH /group/:id : Update group
   async updateGroup(
     id: number,
-    updateGroupDto: CreateGroupDto,
+    updateGroupDto: UpdateGroupDto,
   ): Promise<Group> {
     try {
       const group = await this.prismaService.group.update({
@@ -78,7 +79,7 @@ export class GroupService {
           name: updateGroupDto.name,
           members: {
             set: [],
-            connect: updateGroupDto.members.map((memberId) => ({
+            connect: updateGroupDto.members?.map((memberId) => ({
               id: memberId,
             })),
           },
