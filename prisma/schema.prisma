@@ -43,15 +43,27 @@ model Expense {
   name        String
   description String?
   amount      Float
+  categoryId  Int?
   date        DateTime   @default(now())
   groupId     Int
   userId      Int
   group       Group      @relation(fields: [groupId], references: [id])
   user        User       @relation(fields: [userId], references: [id])
+  category    Category?  @relation(fields: [categoryId], references: [id])
   shares      Share[]
+
   
   @@index([groupId])
   @@index([userId]) 
+}
+
+model Category {
+  id         Int        @default(autoincrement()) @id
+  name       String     @unique
+  icon       String
+  createdAt  DateTime   @default(now())
+  updatedAt  DateTime   @updatedAt
+  expenses   Expense[]
 }
 
 model Share {

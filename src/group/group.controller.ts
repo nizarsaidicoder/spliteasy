@@ -17,7 +17,7 @@ export class CreateGroupDto {
   members: number[];
 }
 
-@Controller('group')
+@Controller('groups')
 export class GroupController {
   constructor(private groupService: GroupService) {}
   // TODO : Add a route that gets a token (the token contains the group id and expiration) then add a user to the group
