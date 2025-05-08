@@ -11,7 +11,7 @@ import { User } from './entity/user';
 import { UsersService } from './users.service';
 import { ApiOkResponse } from '@nestjs/swagger';
 import { GetUserResponseDto } from './dto/get-user-response.dto';
-import { CurrentUser } from './decorators/current-user.decorator';
+import { CurrentUser } from '../decorators/current-user.decorator';
 import { UserPayload } from 'src/auth/auth.guard';
 import { UpdateUserDto } from './dto/update-user.decorator';
 

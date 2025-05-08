@@ -10,13 +10,9 @@ import {
 } from '@nestjs/common';
 import { GroupService } from './group.service';
 import { UpdateGroupDto } from './dto/update-group.dto';
-
-export class CreateGroupDto {
-  name: string;
-  description: string;
-  members: number[];
-}
-
+import { CreateGroupDto } from './dto/create-group.dto';
+import { CurrentUser } from 'src/decorators/current-user.decorator';
+import { UserPayload } from 'src/auth/auth.guard';
 @Controller('groups')
 export class GroupController {
   constructor(private groupService: GroupService) {}
@@ -24,42 +20,78 @@ export class GroupController {
 
   @Post()
   @HttpCode(201)
-  create(@Body() createGroupDto: CreateGroupDto) {
-    return this.groupService.createGroup(createGroupDto);
+  create(
+    @CurrentUser() user: UserPayload,
+    @Body() createGroupDto: CreateGroupDto,
+  ) {
+    return this.groupService.createGroup(user.sub, createGroupDto);
   }
 
   @Get(':id')
   @HttpCode(200)
-  getGroupById(@Param('id') id: string) {
-    return this.groupService.getGroupById(parseInt(id));
+  getGroupById(@CurrentUser() user: UserPayload, @Param('id') id: string) {
+    return this.groupService.getGroupById(user.sub, parseInt(id));
   }
+
   @Patch(':id')
   @HttpCode(204)
-  update(@Param('id') id: string, @Body() updateGroupDto: UpdateGroupDto) {
-    return this.groupService.updateGroup(parseInt(id), updateGroupDto);
+  update(
+    @CurrentUser() user: UserPayload,
+    @Param('id') id: string,
+    @Body() updateGroupDto: UpdateGroupDto,
+  ) {
+    return this.groupService.updateGroup(
+      user.sub,
+      parseInt(id),
+      updateGroupDto,
+    );
   }
-  @Get(':id/members')
-  @HttpCode(200)
-  getMembers(@Param('id') id: string) {
-    return this.groupService.getGroupMembers(parseInt(id));
-  }
+
   @Post(':id/members')
   @HttpCode(201)
-  addMultipleMembers(@Param('id') id: string, @Body() members: number[]) {
-    return this.groupService.updateGroup(parseInt(id), {
+  addMultipleMembers(
+    @CurrentUser() user: UserPayload,
+    @Param('id') id: string,
+    @Body() members: number[],
+  ) {
+    return this.groupService.updateGroup(user.sub, parseInt(id), {
       members,
-    } as CreateGroupDto);
+    });
   }
 
   @Post(':id/members/:userId')
   @HttpCode(204)
-  addSingleMember(@Param('id') id: string, @Param('userId') userId: string) {
-    return this.groupService.addUserToGroup(parseInt(id), parseInt(userId));
+  addSingleMember(
+    @CurrentUser() user: UserPayload,
+    @Param('id') id: string,
+    @Param('userId') userId: string,
+  ) {
+    return this.groupService.addUserToGroup(
+      user.sub,
+      parseInt(id),
+      parseInt(userId),
+    );
   }
+
+  @Delete(':id/members/me')
+  @HttpCode(204)
+  removeMe(@CurrentUser() user: UserPayload, @Param('id') id: string) {
+    return this.groupService.removeUserFromGroup(
+      user.sub,
+      parseInt(id),
+      user.sub,
+    );
+  }
+
   @Delete(':id/members/:userId')
   @HttpCode(204)
-  removeSingleMember(@Param('id') id: string, @Param('userId') userId: string) {
+  removeSingleMember(
+    @CurrentUser() user: UserPayload,
+    @Param('id') id: string,
+    @Param('userId') userId: string,
+  ) {
     return this.groupService.removeUserFromGroup(
+      user.sub,
       parseInt(id),
       parseInt(userId),
     );
