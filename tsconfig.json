@@ -17,7 +17,19 @@
     "noImplicitAny": false,
     "strictBindCallApply": false,
     "noFallthroughCasesInSwitch": false,
-    "typeRoots": ["./node_modules/@types", "./src/types"]
+    "typeRoots": ["./node_modules/@types", "./src/types"],
+    "paths": {
+      "@guards/*": ["src/shared/guards/*"],
+      "@utils/*": ["src/shared/utils/*"],
+      "@decorators/*": ["src/shared/decorators/*"],
+      "@auth/*": ["src/auth/*"],
+      "@users/*": ["src/users/*"],
+      "@shared/*": ["src/shared/*"],
+      "@config/*": ["src/config/*"],
+      "@prisma/*": ["src/prisma/*"],
+      "@app-types/*": ["src/types/*"],
+      "@src/*": ["src/*"]
+    }
   },
-  "include": ["src/**/*.ts", "src/types/**/*.d.ts", "test/**/*.ts"]
+  "include": ["src/**/*.ts", "src/types/**/*.d.ts", "src/types/**/*.type.ts", "test/**/*.ts"]
 }

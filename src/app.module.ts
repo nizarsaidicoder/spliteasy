@@ -4,8 +4,9 @@ import { PrismaModule } from './prisma/prisma.module';
 import { ConfigModule } from '@nestjs/config';
 import { AuthModule } from './auth/auth.module';
 import { UsersModule } from './users/users.module';
-import { GroupModule } from './group/group.module';
-import { ExpenseModule } from './expense/expense.module';
+import { GroupsModule } from './groups/groups.module';
+import { ExpensesModule } from './expenses/expenses.module';
+import authConfig from './config/auth.config';
 @Module({
   imports: [
     PrismaModule,
@@ -13,10 +14,13 @@ import { ExpenseModule } from './expense/expense.module';
     UsersModule,
     ConfigModule.forRoot({
       cache: true,
+      isGlobal: true,
+      load: [authConfig],
     }),
-    GroupModule,
-    ExpenseModule,
+    GroupsModule,
+    ExpensesModule,
   ],
   providers: [AppService],
 })
-export class AppModule {}
+export class AppModule
+{}

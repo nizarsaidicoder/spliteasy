@@ -9,15 +9,7 @@ import {
   IsArray,
 } from 'class-validator';
 import { Type } from 'class-transformer';
-
-class ShareDto
-{
-  @IsInt()
-  userId: number;
-
-  @IsNumber()
-  amount: number;
-}
+import { ShareInputDto } from './share-input.dto';
 
 export class CreateExpenseDto
 {
@@ -44,6 +36,6 @@ export class CreateExpenseDto
   @IsArray()
   @ArrayNotEmpty()
   @ValidateNested({ each: true })
-  @Type(() => ShareDto)
-  shares: ShareDto[];
+  @Type(() => ShareInputDto)
+  shares: ShareInputDto[];
 }

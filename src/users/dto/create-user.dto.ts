@@ -1,8 +1,9 @@
 import { Transform } from 'class-transformer';
 import { IsEmail, IsNotEmpty, IsString, MinLength } from 'class-validator';
-import { ToLowerCase } from 'src/utils/transformers';
+import { ToLowerCase } from 'src/shared/utils/transformers';
 
-export class CreateUserDto {
+export class CreateUserDto
+{
   @IsString()
   @IsNotEmpty()
   @Transform(ToLowerCase)

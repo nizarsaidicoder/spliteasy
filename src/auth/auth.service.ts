@@ -1,25 +1,29 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { SignUpDto } from './dto/sign-up.dto';
-import { User } from 'src/users/entity/user';
+import { User } from 'src/users/entity/user.entity';
 import { UsersService } from 'src/users/users.service';
 import * as bcrypt from 'bcrypt';
 import { SignInEmailDto, SignInUsernameDto } from './dto/sign-in.dto';
 import { AuthResponseDto } from './dto/auth-response.dto';
 
 @Injectable()
-export class AuthService {
+export class AuthService
+{
   constructor(
     private usersService: UsersService,
     private jwtService: JwtService,
-  ) {}
+  )
+  {}
 
-  async signInUsername(data: SignInUsernameDto): Promise<AuthResponseDto> {
+  async signInUsername(data: SignInUsernameDto): Promise<AuthResponseDto>
+  {
     const user: User | null = await this.usersService.findOneByUsername(
       data.username,
     );
 
-    if (!user || !(await bcrypt.compare(data.password, user.password))) {
+    if (!user || !(await bcrypt.compare(data.password, user.password)))
+    {
       throw new UnauthorizedException('Invalid credentials');
     }
 
@@ -30,12 +34,14 @@ export class AuthService {
     };
   }
 
-  async signInEmail(data: SignInEmailDto): Promise<AuthResponseDto> {
+  async signInEmail(data: SignInEmailDto): Promise<AuthResponseDto>
+  {
     const user: User | null = await this.usersService.findOneByEmail(
       data.email,
     );
 
-    if (!user || !(await bcrypt.compare(data.password, user.password))) {
+    if (!user || !(await bcrypt.compare(data.password, user.password)))
+    {
       throw new UnauthorizedException('Invalid credentials');
     }
 
@@ -45,16 +51,19 @@ export class AuthService {
     };
   }
 
-  async signUp(signupDto: SignUpDto): Promise<any> {
+  async signUp(signupDto: SignUpDto): Promise<any>
+  {
     const userByUsername = await this.usersService.findOneByUsername(
       signupDto.username,
     );
     const userByEmail = await this.usersService.findOneByEmail(signupDto.email);
 
-    if (userByUsername) {
+    if (userByUsername)
+    {
       throw new UnauthorizedException('User with this username already exists');
     }
-    if (userByEmail) {
+    if (userByEmail)
+    {
       throw new UnauthorizedException('User with this email already exists');
     }
 

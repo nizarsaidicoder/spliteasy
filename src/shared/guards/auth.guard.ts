@@ -1,59 +1,57 @@
-import {
-  CanActivate,
-  ExecutionContext,
-  Injectable,
-  UnauthorizedException,
-} from '@nestjs/common';
+import { CanActivate, ExecutionContext, Injectable, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
-import { jwtConstants } from './constants';
 import { Request } from 'express';
 import { Reflector } from '@nestjs/core';
-import { IS_PUBLIC_KEY } from './decorators/public.decorator';
+import { IS_PUBLIC_KEY } from 'src/auth/decorators/public.decorator';
 import { UsersService } from 'src/users/users.service';
+import { UserPayload } from '@app-types/user-payload.type';
 
-export type UserPayload = {
-  username: string;
-  sub: number;
-};
 @Injectable()
-export class AuthGuard implements CanActivate {
+export class AuthGuard implements CanActivate
+{
   constructor(
     private jwtService: JwtService,
     private userService: UsersService,
     private reflector: Reflector,
-  ) {}
+  )
+  {}
 
-  async canActivate(context: ExecutionContext): Promise<boolean> {
-    const isPublic = this.reflector.getAllAndOverride<boolean>(IS_PUBLIC_KEY, [
-      context.getHandler(),
-      context.getClass(),
-    ]);
-    if (isPublic) {
+  async canActivate(context: ExecutionContext): Promise<boolean>
+  {
+    const isPublic = this.reflector.getAllAndOverride<boolean>(IS_PUBLIC_KEY, [context.getHandler(), context.getClass()]);
+    if (isPublic)
+    {
       return true;
     }
 
     const request = context.switchToHttp().getRequest<Request>();
     const token = this.extractTokenFromHeader(request);
-    if (!token) {
+    if (!token)
+    {
       throw new UnauthorizedException('No token provided');
     }
-    try {
+    try
+    {
       const payload: UserPayload = await this.jwtService.verifyAsync(token, {
-        secret: jwtConstants.secret,
+        secret: process.env.JWT_SECRET,
       });
 
       const user = await this.userService.findOneById(payload.sub);
-      if (!user) {
+      if (!user)
+      {
         throw new UnauthorizedException('User not found');
       }
       request['user'] = payload;
-    } catch {
+    }
+    catch
+    {
       throw new UnauthorizedException('Invalid token');
     }
     return true;
   }
 
-  private extractTokenFromHeader(request: Request): string | undefined {
+  private extractTokenFromHeader(request: Request): string | undefined
+  {
     const [type, token] = request.headers.authorization?.split(' ') ?? [];
     return type === 'Bearer' ? token : undefined;
   }

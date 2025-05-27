@@ -1,9 +1,4 @@
-import {
-  ForbiddenException,
-  Injectable,
-  InternalServerErrorException,
-  NotFoundException,
-} from '@nestjs/common';
+import { ForbiddenException, Injectable, InternalServerErrorException, NotFoundException } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { Group } from './entity/group.entity';
 import { CreateGroupDto } from './dto/create-group.dto';
@@ -12,7 +7,7 @@ import { Prisma } from '@prisma/client';
 import { UsersService } from 'src/users/users.service';
 
 @Injectable()
-export class GroupService
+export class GroupsService
 {
   constructor(
     private prismaService: PrismaService,
@@ -20,7 +15,7 @@ export class GroupService
   )
   {}
 
-  async isMemberOfGroup(userId: number, groupId: number): Promise<boolean>
+  async isMember(userId: number, groupId: number): Promise<boolean>
   {
     const group = await this.prismaService.group.findUnique({
       where: { id: groupId },
@@ -38,19 +33,16 @@ export class GroupService
 
     return group.members.some((member) => member.id === userId);
   }
-  private async assertIsGroupMember(
-    userId: number,
-    groupId: number,
-  ): Promise<void>
+  private async assertIsGroupMember(userId: number, groupId: number): Promise<void>
   {
-    const isMember = await this.isMemberOfGroup(userId, groupId);
+    const isMember = await this.isMember(userId, groupId);
     if (!isMember)
     {
       throw new ForbiddenException('You are not a member of this group');
     }
   }
   // GET /group/:id : Get group by id
-  async getGroupById(userId: number, id: number): Promise<Group | null>
+  async getById(userId: number, id: number): Promise<Group | null>
   {
     // check if the current user is a member of the group
     // if not, throw an error
@@ -84,10 +76,7 @@ export class GroupService
     return new Group(group.id, group.name, memberIds, expenseIds);
   }
   // POST /group : Create group
-  async createGroup(
-    creatorId: number,
-    createGroupDto: CreateGroupDto,
-  ): Promise<Group>
+  async create(creatorId: number, createGroupDto: CreateGroupDto): Promise<Group>
   {
     try
     {
@@ -114,11 +103,7 @@ export class GroupService
     }
   }
   // PATCH /group/:id : Update group
-  async updateGroup(
-    currentMember: number,
-    id: number,
-    updateGroupDto: UpdateGroupDto,
-  ): Promise<Group>
+  async update(currentMember: number, id: number, updateGroupDto: UpdateGroupDto): Promise<Group>
   {
     await this.assertIsGroupMember(currentMember, id);
 
@@ -154,7 +139,7 @@ export class GroupService
     );
   }
   // PATCH /group/:id/members/:userId : Add a user to a group
-  async addUserToGroup(currentMember: number, id: number, userId: number)
+  async addUser(currentMember: number, id: number, userId: number)
   {
     await this.assertIsGroupMember(currentMember, id);
 
@@ -163,16 +148,15 @@ export class GroupService
       throw new ForbiddenException('You cannot add yourself to the group');
     }
 
-    const userExists = await this.userService.getOne(userId);
-    if (!userExists)
+    await this.userService.getOne(userId).catch(() =>
     {
       throw new NotFoundException(`User with ID ${userId} not found`);
-    }
-    const isAlreadyMember = await this.isMemberOfGroup(userId, id);
-    if (isAlreadyMember)
+    });
+
+    await this.isMember(userId, id).catch(() =>
     {
       throw new ForbiddenException('User is already a member of this group');
-    }
+    });
 
     await this.prismaService.group.update({
       where: { id },
@@ -187,19 +171,13 @@ export class GroupService
     };
   }
   // POST /group/:id/members : Add multiple users to a group
-  async addUsersToGroup(
-    currentMember: number,
-    id: number,
-    memberIds: number[],
-  )
+  async addUsers(currentMember: number, id: number, memberIds: number[])
   {
     await this.assertIsGroupMember(currentMember, id);
 
     const users = await this.userService.getMany(memberIds);
     const existingUserIds = users.map((user) => user.id);
-    const validMemberIds = memberIds.filter((id) =>
-      existingUserIds.includes(id),
-    );
+    const validMemberIds = memberIds.filter((id) => existingUserIds.includes(id));
 
     if (memberIds.length === 0)
     {
@@ -219,7 +197,7 @@ export class GroupService
     };
   }
   // DELETE /group/:id/members/:userId : Remove a user from a group
-  async removeUserFromGroup(currentMember: number, id: number, userId: number)
+  async removeUser(currentMember: number, id: number, userId: number)
   {
     await this.assertIsGroupMember(currentMember, id);
 
@@ -228,12 +206,10 @@ export class GroupService
       throw new ForbiddenException("You can't remove yourself from the group");
     }
 
-    const isUserMember = await this.isMemberOfGroup(userId, id);
+    const isUserMember = await this.isMember(userId, id);
     if (!isUserMember)
     {
-      throw new NotFoundException(
-        `User with ID ${userId} is not a member of this group`,
-      );
+      throw new NotFoundException(`User with ID ${userId} is not a member of this group`);
     }
     // NOTE : For the moment, we don't implement a check if the user still has expenses in the group
 

@@ -1,9 +1,9 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { User } from './entity/user';
+import { User } from './entity/user.entity';
 import { CreateUserDto } from './dto/create-user.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
 import * as bcrypt from 'bcrypt';
-import { UpdateUserDto } from './dto/update-user.decorator';
+import { UpdateUserDto } from './dto/update-user.dto';
 import { Prisma } from '.prisma/client';
 
 @Injectable()
@@ -21,14 +21,7 @@ export class UsersService
     {
       return null;
     }
-    return new User(
-      user.id,
-      user.username,
-      user.firstName,
-      user.lastName,
-      user.email,
-      user.password,
-    );
+    return new User(user.id, user.username, user.firstName, user.lastName, user.email, user.password);
   }
 
   async findOneById(id: number): Promise<User | null>
@@ -40,14 +33,7 @@ export class UsersService
     {
       return null;
     }
-    return new User(
-      user.id,
-      user.username,
-      user.firstName,
-      user.lastName,
-      user.email,
-      user.password,
-    );
+    return new User(user.id, user.username, user.firstName, user.lastName, user.email, user.password);
   }
 
   async findOneByEmail(email: string): Promise<User | null>
@@ -59,14 +45,7 @@ export class UsersService
     {
       return null;
     }
-    return new User(
-      user.id,
-      user.username,
-      user.firstName,
-      user.lastName,
-      user.email,
-      user.password,
-    );
+    return new User(user.id, user.username, user.firstName, user.lastName, user.email, user.password);
   }
 
   async getOne(id: number): Promise<Omit<User, 'password'> | null>
@@ -117,14 +96,7 @@ export class UsersService
         password: hashedPassword,
       },
     });
-    return new User(
-      user.id,
-      user.username,
-      user.firstName,
-      user.lastName,
-      user.email,
-      user.password,
-    );
+    return new User(user.id, user.username, user.firstName, user.lastName, user.email, user.password);
   }
 
   async update(id: number, updateUserDto: UpdateUserDto): Promise<User>
@@ -143,9 +115,7 @@ export class UsersService
         where: { id },
         data: {
           ...updateUserDto,
-          password: updateUserDto.password
-            ? await this.hashPassword(updateUserDto.password)
-            : undefined,
+          password: updateUserDto.password ? await this.hashPassword(updateUserDto.password) : undefined,
         },
       });
 
@@ -164,9 +134,7 @@ export class UsersService
       {
         if (error.code === 'P2002')
         {
-          throw new NotFoundException(
-            `User with this username or email already exists`,
-          );
+          throw new NotFoundException(`User with this username or email already exists`);
         }
       }
       throw error;

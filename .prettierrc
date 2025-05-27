@@ -2,5 +2,6 @@
   "singleQuote": true,
   "trailingComma": "all",
   "plugins": ["prettier-plugin-brace-style"],
-  "braceStyle": "allman"
+  "braceStyle": "allman",
+  "printWidth": 180
 }
