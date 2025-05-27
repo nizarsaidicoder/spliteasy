@@ -1,4 +1,7 @@
-export class Expense {
+import { Share } from './share.entity';
+
+export class Expense
+{
   id: number;
   name: string;
   description?: string;
@@ -17,7 +20,8 @@ export class Expense {
     groupId: number,
     userId: number,
     shares: Share[],
-  ) {
+  )
+  {
     this.id = id;
     this.name = name;
     this.description = description;
@@ -26,19 +30,5 @@ export class Expense {
     this.groupId = groupId;
     this.userId = userId;
     this.shares = shares;
-  }
-}
-
-export class Share {
-  id: number;
-  userId: number;
-  expenseId: number;
-  amount: number;
-
-  constructor(id: number, userId: number, expenseId: number, amount: number) {
-    this.id = id;
-    this.userId = userId;
-    this.expenseId = expenseId;
-    this.amount = amount;
   }
 }

@@ -7,14 +7,18 @@ import { UpdateUserDto } from './dto/update-user.decorator';
 import { Prisma } from '.prisma/client';
 
 @Injectable()
-export class UsersService {
-  constructor(private prismaClient: PrismaService) {}
+export class UsersService
+{
+  constructor(private prismaClient: PrismaService)
+  {}
 
-  async findOneByUsername(username: string): Promise<User | null> {
+  async findOneByUsername(username: string): Promise<User | null>
+  {
     const user = await this.prismaClient.user.findUnique({
       where: { username },
     });
-    if (!user) {
+    if (!user)
+    {
       return null;
     }
     return new User(
@@ -27,11 +31,13 @@ export class UsersService {
     );
   }
 
-  async findOneById(id: number): Promise<User | null> {
+  async findOneById(id: number): Promise<User | null>
+  {
     const user = await this.prismaClient.user.findUnique({
       where: { id },
     });
-    if (!user) {
+    if (!user)
+    {
       return null;
     }
     return new User(
@@ -44,11 +50,13 @@ export class UsersService {
     );
   }
 
-  async findOneByEmail(email: string): Promise<User | null> {
+  async findOneByEmail(email: string): Promise<User | null>
+  {
     const user = await this.prismaClient.user.findUnique({
       where: { email },
     });
-    if (!user) {
+    if (!user)
+    {
       return null;
     }
     return new User(
@@ -61,11 +69,13 @@ export class UsersService {
     );
   }
 
-  async getOne(id: number): Promise<Omit<User, 'password'> | null> {
+  async getOne(id: number): Promise<Omit<User, 'password'> | null>
+  {
     const user = await this.prismaClient.user.findUnique({
       where: { id },
     });
-    if (!user) {
+    if (!user)
+    {
       throw new NotFoundException(`User with id ${id} not found`);
     }
     return {
@@ -79,7 +89,24 @@ export class UsersService {
     };
   }
 
-  async create(createUserDto: CreateUserDto): Promise<User> {
+  async getMany(ids: number[]): Promise<Omit<User, 'password'>[]>
+  {
+    const users = await this.prismaClient.user.findMany({
+      where: { id: { in: ids } },
+    });
+    return users.map((user) => ({
+      id: user.id,
+      username: user.username,
+      firstName: user.firstName,
+      lastName: user.lastName,
+      email: user.email,
+      createdAt: user.createdAt,
+      updatedAt: user.updatedAt,
+    }));
+  }
+
+  async create(createUserDto: CreateUserDto): Promise<User>
+  {
     const hashedPassword = await this.hashPassword(createUserDto.password);
     const user = await this.prismaClient.user.create({
       data: {
@@ -100,12 +127,15 @@ export class UsersService {
     );
   }
 
-  async update(id: number, updateUserDto: UpdateUserDto): Promise<User> {
-    try {
+  async update(id: number, updateUserDto: UpdateUserDto): Promise<User>
+  {
+    try
+    {
       const user = await this.prismaClient.user.findUnique({
         where: { id },
       });
-      if (!user) {
+      if (!user)
+      {
         throw new NotFoundException(`User with id ${id} not found`);
       }
 
@@ -127,9 +157,13 @@ export class UsersService {
         updatedUser.email,
         updatedUser.password,
       );
-    } catch (error) {
-      if (error instanceof Prisma.PrismaClientKnownRequestError) {
-        if (error.code === 'P2002') {
+    }
+    catch (error)
+    {
+      if (error instanceof Prisma.PrismaClientKnownRequestError)
+      {
+        if (error.code === 'P2002')
+        {
           throw new NotFoundException(
             `User with this username or email already exists`,
           );
@@ -139,11 +173,13 @@ export class UsersService {
     }
   }
 
-  async delete(id: number): Promise<void> {
+  async delete(id: number): Promise<void>
+  {
     const user = await this.prismaClient.user.findUnique({
       where: { id },
     });
-    if (!user) {
+    if (!user)
+    {
       throw new NotFoundException(`User with id ${id} not found`);
     }
     await this.prismaClient.user.delete({
@@ -151,7 +187,8 @@ export class UsersService {
     });
   }
 
-  private async hashPassword(password: string): Promise<string> {
+  private async hashPassword(password: string): Promise<string>
+  {
     const saltRounds = 10;
     return bcrypt.hash(password, saltRounds);
   }

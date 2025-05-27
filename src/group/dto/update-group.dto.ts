@@ -1,6 +1,7 @@
 import { IsString, IsArray, IsInt, MinLength } from 'class-validator';
 
-export class UpdateGroupDto {
+export class UpdateGroupDto
+{
   @IsString()
   @MinLength(2)
   name?: string;

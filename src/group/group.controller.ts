@@ -14,8 +14,10 @@ import { CreateGroupDto } from './dto/create-group.dto';
 import { CurrentUser } from 'src/decorators/current-user.decorator';
 import { UserPayload } from 'src/auth/auth.guard';
 @Controller('groups')
-export class GroupController {
-  constructor(private groupService: GroupService) {}
+export class GroupController
+{
+  constructor(private groupService: GroupService)
+  {}
   // TODO : Add a route that gets a token (the token contains the group id and expiration) then add a user to the group
 
   @Post()
@@ -23,13 +25,15 @@ export class GroupController {
   create(
     @CurrentUser() user: UserPayload,
     @Body() createGroupDto: CreateGroupDto,
-  ) {
+  )
+  {
     return this.groupService.createGroup(user.sub, createGroupDto);
   }
 
   @Get(':id')
   @HttpCode(200)
-  getGroupById(@CurrentUser() user: UserPayload, @Param('id') id: string) {
+  getGroupById(@CurrentUser() user: UserPayload, @Param('id') id: string)
+  {
     return this.groupService.getGroupById(user.sub, parseInt(id));
   }
 
@@ -39,7 +43,8 @@ export class GroupController {
     @CurrentUser() user: UserPayload,
     @Param('id') id: string,
     @Body() updateGroupDto: UpdateGroupDto,
-  ) {
+  )
+  {
     return this.groupService.updateGroup(
       user.sub,
       parseInt(id),
@@ -52,11 +57,17 @@ export class GroupController {
   addMultipleMembers(
     @CurrentUser() user: UserPayload,
     @Param('id') id: string,
-    @Body() members: number[],
-  ) {
-    return this.groupService.updateGroup(user.sub, parseInt(id), {
-      members,
-    });
+    @Body()
+    payload: {
+      members: number[];
+    },
+  )
+  {
+    return this.groupService.addUsersToGroup(
+      user.sub,
+      parseInt(id),
+      payload.members,
+    );
   }
 
   @Post(':id/members/:userId')
@@ -65,21 +76,12 @@ export class GroupController {
     @CurrentUser() user: UserPayload,
     @Param('id') id: string,
     @Param('userId') userId: string,
-  ) {
+  )
+  {
     return this.groupService.addUserToGroup(
       user.sub,
       parseInt(id),
       parseInt(userId),
-    );
-  }
-
-  @Delete(':id/members/me')
-  @HttpCode(204)
-  removeMe(@CurrentUser() user: UserPayload, @Param('id') id: string) {
-    return this.groupService.removeUserFromGroup(
-      user.sub,
-      parseInt(id),
-      user.sub,
     );
   }
 
@@ -89,11 +91,23 @@ export class GroupController {
     @CurrentUser() user: UserPayload,
     @Param('id') id: string,
     @Param('userId') userId: string,
-  ) {
+  )
+  {
     return this.groupService.removeUserFromGroup(
       user.sub,
       parseInt(id),
       parseInt(userId),
+    );
+  }
+
+  @Delete(':id/members/me')
+  @HttpCode(204)
+  removeMe(@CurrentUser() user: UserPayload, @Param('id') id: string)
+  {
+    return this.groupService.removeUserFromGroup(
+      user.sub,
+      parseInt(id),
+      user.sub,
     );
   }
 }
