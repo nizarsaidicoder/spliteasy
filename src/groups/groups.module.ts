@@ -8,6 +8,7 @@ import { UsersModule } from 'src/users/users.module';
   providers: [GroupsService],
   controllers: [GroupsController],
   imports: [PrismaModule, UsersModule],
+  exports: [GroupsService], // Exporting GroupsService to be used in other modules
 })
 export class GroupsModule
 {}

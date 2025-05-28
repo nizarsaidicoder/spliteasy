@@ -1,13 +1,4 @@
-import {
-  IsString,
-  IsOptional,
-  IsNumber,
-  IsDate,
-  IsInt,
-  ValidateNested,
-  ArrayNotEmpty,
-  IsArray,
-} from 'class-validator';
+import { IsString, IsOptional, IsNumber, IsDate, IsInt, ValidateNested, ArrayNotEmpty, IsArray } from 'class-validator';
 import { Type } from 'class-transformer';
 import { ShareInputDto } from './share-input.dto';
 
@@ -26,6 +17,10 @@ export class CreateExpenseDto
   @Type(() => Date)
   @IsDate()
   date: Date;
+
+  @IsOptional()
+  @IsInt()
+  categoryId?: number;
 
   @IsInt()
   groupId: number;

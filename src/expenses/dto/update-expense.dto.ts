@@ -1,11 +1,4 @@
-import {
-  IsString,
-  IsOptional,
-  IsNumber,
-  IsDate,
-  IsArray,
-  ValidateNested,
-} from 'class-validator';
+import { IsString, IsOptional, IsNumber, IsDate, IsArray, ValidateNested, IsInt } from 'class-validator';
 import { Type } from 'class-transformer';
 import { ShareInputDto } from './share-input.dto';
 
@@ -27,6 +20,10 @@ export class UpdateExpenseDto
   @IsOptional()
   @IsDate()
   date?: Date;
+
+  @IsOptional()
+  @IsInt()
+  categoryId?: number;
 
   @IsOptional()
   @IsArray()

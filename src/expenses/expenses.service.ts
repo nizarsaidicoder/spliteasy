@@ -10,12 +10,6 @@ import { UpdateExpenseDto } from './dto/update-expense.dto';
 @Injectable()
 export class ExpensesService
 {
-  // getOneById(user.sub, id);
-  // createOne(user.sub, createExpenseDto, mode);
-  // getSomeOfGroup(user.sub, groupId);
-  // updateOne(user.sub, id, updateExpenseDto);
-  // deleteOne(user.sub, id);
-
   constructor(
     private prismaService: PrismaService,
     private userService: UsersService,
@@ -34,6 +28,29 @@ export class ExpensesService
 
     const shares = this.calculateShares(createExpenseDto.amount, createExpenseDto.shares, mode);
 
+    if (createExpenseDto.shares.some((share) => !share.userId || !share.amount))
+    {
+      throw new ForbiddenException('Each share must have a userId and an amount');
+    }
+    if (createExpenseDto.shares.length > group.members.length)
+    {
+      throw new ForbiddenException('The number of shares cannot exceed the number of group members');
+    }
+    if (createExpenseDto.shares.some((share) => share.amount <= 0))
+    {
+      throw new ForbiddenException('Share amounts must be greater than zero');
+    }
+    if (createExpenseDto.shares.some((share) => !group.members.some((member) => member === share.userId)))
+    {
+      throw new ForbiddenException('All shares must belong to members of the group');
+    }
+
+    const totalShareAmount = shares.reduce((acc, share) => acc + share.amount, 0);
+    if (totalShareAmount !== createExpenseDto.amount)
+    {
+      throw new ForbiddenException('The total amount of shares must equal the expense amount');
+    }
+
     const expense = await this.prismaService.expense.create({
       data: {
         name: createExpenseDto.name,
@@ -41,6 +58,8 @@ export class ExpensesService
         amount: createExpenseDto.amount,
         groupId: createExpenseDto.groupId,
         userId: createExpenseDto.userId,
+        date: createExpenseDto.date,
+        categoryId: createExpenseDto.categoryId,
         shares: {
           create: shares.map((share) => ({
             userId: share.userId,
@@ -114,7 +133,30 @@ export class ExpensesService
     let shares: Array<{ userId: number; amount: number }> = [];
     if (updateExpenseDto.shares && updateExpenseDto.shares?.length !== 0)
     {
+      // Validate shares
+      if (updateExpenseDto.shares.some((share) => !share.userId || !share.amount))
+      {
+        throw new ForbiddenException('Each share must have a userId and an amount');
+      }
+      if (updateExpenseDto.shares.length > expense.group.members.length)
+      {
+        throw new ForbiddenException('The number of shares cannot exceed the number of group members');
+      }
+      if (updateExpenseDto.shares.some((share) => share.amount <= 0))
+      {
+        throw new ForbiddenException('Share amounts must be greater than zero');
+      }
+      if (updateExpenseDto.shares.some((share) => !expense.group.members.some((member) => member.id === share.userId)))
+      {
+        throw new ForbiddenException('All shares must belong to members of the group');
+      }
+
       shares = this.calculateShares(expense.amount, updateExpenseDto.shares, mode);
+      const totalShareAmount = shares.reduce((acc, share) => acc + share.amount, 0);
+      if (totalShareAmount !== updateExpenseDto.amount)
+      {
+        throw new ForbiddenException('The total amount of shares must equal the expense amount');
+      }
     }
 
     const updatePayload: Prisma.ExpenseUpdateInput = {
@@ -135,6 +177,12 @@ export class ExpensesService
     if (updateExpenseDto.date)
     {
       updatePayload.date = updateExpenseDto.date;
+    }
+    if (updateExpenseDto.categoryId)
+    {
+      updatePayload.category = {
+        connect: { id: updateExpenseDto.categoryId },
+      };
     }
 
     const updatedExpense = await this.prismaService.expense.update({
