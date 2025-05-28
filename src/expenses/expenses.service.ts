@@ -1,19 +1,19 @@
 import { ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '@prisma/prisma.service';
-import { UsersService } from '@users/users.service';
 import { GroupsService } from '@src/groups/groups.service'; // Assuming you have a GroupsService to handle group-related logic
-import { Expense, Prisma } from '@prisma/client';
+import { Category, Expense, Prisma } from '@prisma/client';
 import { ConversionMode } from '@app-types/conversion-mode.type';
 import { CreateExpenseDto } from './dto/create-expense.dto';
 import { UpdateExpenseDto } from './dto/update-expense.dto';
+import { ExpenseCategoriesService } from '@src/expense-categories/expense-categories.service';
 
 @Injectable()
 export class ExpensesService
 {
   constructor(
     private prismaService: PrismaService,
-    private userService: UsersService,
     private groupsService: GroupsService,
+    private expenseCategoriesService: ExpenseCategoriesService,
   )
   {}
   async createOne(userId: number, createExpenseDto: CreateExpenseDto, mode: ConversionMode)
@@ -50,6 +50,11 @@ export class ExpensesService
     {
       throw new ForbiddenException('The total amount of shares must equal the expense amount');
     }
+    let category: Category | null = null;
+    if (createExpenseDto.categoryId)
+    {
+      category = await this.expenseCategoriesService.getById(createExpenseDto.categoryId);
+    }
 
     const expense = await this.prismaService.expense.create({
       data: {
@@ -59,7 +64,7 @@ export class ExpensesService
         groupId: createExpenseDto.groupId,
         userId: createExpenseDto.userId,
         date: createExpenseDto.date,
-        categoryId: createExpenseDto.categoryId,
+        categoryId: category ? category.id : undefined,
         shares: {
           create: shares.map((share) => ({
             userId: share.userId,
@@ -180,6 +185,11 @@ export class ExpensesService
     }
     if (updateExpenseDto.categoryId)
     {
+      const category = await this.expenseCategoriesService.getById(updateExpenseDto.categoryId);
+      if (!category)
+      {
+        throw new NotFoundException(`Category with ID ${updateExpenseDto.categoryId} not found`);
+      }
       updatePayload.category = {
         connect: { id: updateExpenseDto.categoryId },
       };
