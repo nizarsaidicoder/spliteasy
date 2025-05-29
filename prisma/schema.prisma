@@ -49,15 +49,14 @@ model Expense {
   userId      Int
   group       Group      @relation(fields: [groupId], references: [id])
   user        User       @relation(fields: [userId], references: [id])
-  category    Category?  @relation(fields: [categoryId], references: [id])
+  category    ExpenseCategory?  @relation(fields: [categoryId], references: [id])
   shares      Share[]
 
-  
   @@index([groupId])
-  @@index([userId]) 
+  @@index([userId])
 }
 
-model Category {
+model ExpenseCategory {
   id         Int        @default(autoincrement()) @id
   name       String     @unique
   icon       String
@@ -70,7 +69,7 @@ model Share {
   expenseId  Int
   amount     Float
   user       User       @relation(fields: [userId], references: [id])
-  expense    Expense    @relation(fields: [expenseId], references: [id])
+  expense    Expense    @relation(fields: [expenseId], references: [id], onDelete: Cascade)
 
   @@unique([userId, expenseId])
 }

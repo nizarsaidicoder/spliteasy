@@ -29,11 +29,7 @@ export class ExpensesController
 
   // GET /expense/group/:groupId : Get all expenses for a group
   @Get('/group/:groupId')
-  async getSomeOfGroup(
-    @CurrentUser() user: UserPayload,
-
-    @Param('groupId', ParseIntPipe) groupId: number,
-  ): Promise<Expense[]>
+  async getSomeOfGroup(@CurrentUser() user: UserPayload, @Param('groupId', ParseIntPipe) groupId: number): Promise<Expense[]>
   {
     return this.expenseService.getSomeOfGroup(user.sub, groupId);
   }

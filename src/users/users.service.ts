@@ -14,8 +14,13 @@ export class UsersService
 
   async findOneByUsername(username: string): Promise<User | null>
   {
-    const user = await this.prismaClient.user.findUnique({
-      where: { username },
+    const user = await this.prismaClient.user.findFirst({
+      where: {
+        username: {
+          equals: username,
+          mode: 'insensitive',
+        },
+      },
     });
     if (!user)
     {
@@ -38,8 +43,13 @@ export class UsersService
 
   async findOneByEmail(email: string): Promise<User | null>
   {
-    const user = await this.prismaClient.user.findUnique({
-      where: { email },
+    const user = await this.prismaClient.user.findFirst({
+      where: {
+        email: {
+          equals: email,
+          mode: 'insensitive',
+        },
+      },
     });
     if (!user)
     {
@@ -119,14 +129,7 @@ export class UsersService
         },
       });
 
-      return new User(
-        updatedUser.id,
-        updatedUser.username,
-        updatedUser.firstName,
-        updatedUser.lastName,
-        updatedUser.email,
-        updatedUser.password,
-      );
+      return new User(updatedUser.id, updatedUser.username, updatedUser.firstName, updatedUser.lastName, updatedUser.email, updatedUser.password);
     }
     catch (error)
     {

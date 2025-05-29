@@ -1,7 +1,7 @@
 import { ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '@prisma/prisma.service';
 import { GroupsService } from '@src/groups/groups.service'; // Assuming you have a GroupsService to handle group-related logic
-import { Category, Expense, Prisma } from '@prisma/client';
+import { ExpenseCategory, Expense, Prisma } from '@prisma/client';
 import { ConversionMode } from '@app-types/conversion-mode.type';
 import { CreateExpenseDto } from './dto/create-expense.dto';
 import { UpdateExpenseDto } from './dto/update-expense.dto';
@@ -50,7 +50,7 @@ export class ExpensesService
     {
       throw new ForbiddenException('The total amount of shares must equal the expense amount');
     }
-    let category: Category | null = null;
+    let category: ExpenseCategory | null = null;
     if (createExpenseDto.categoryId)
     {
       category = await this.expenseCategoriesService.getById(createExpenseDto.categoryId);
@@ -188,7 +188,7 @@ export class ExpensesService
       const category = await this.expenseCategoriesService.getById(updateExpenseDto.categoryId);
       if (!category)
       {
-        throw new NotFoundException(`Category with ID ${updateExpenseDto.categoryId} not found`);
+        throw new NotFoundException(`ExpenseCategory with ID ${updateExpenseDto.categoryId} not found`);
       }
       updatePayload.category = {
         connect: { id: updateExpenseDto.categoryId },
@@ -214,10 +214,9 @@ export class ExpensesService
       throw new NotFoundException(`Expense with ID ${id} not found`);
     }
 
-    const isMember = expense.group.members.some((member) => member.id === userId);
-    if (!isMember)
+    if (userId !== expense.userId)
     {
-      throw new ForbiddenException('You are not a member of the group associated with this expense');
+      throw new ForbiddenException('You are not the owner of this expense');
     }
 
     await this.prismaService.expense.delete({
