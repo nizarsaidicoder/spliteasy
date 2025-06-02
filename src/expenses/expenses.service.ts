@@ -99,7 +99,6 @@ export class ExpensesService
 
     return expense;
   }
-
   async getSomeOfGroup(userId: number, groupId: number)
   {
     const group = await this.groupsService.getById(userId, groupId);
@@ -117,7 +116,26 @@ export class ExpensesService
 
     return expenses;
   }
+  async getSomeOfUser(userId: number): Promise<Expense[]>
+  {
+    // look for all the user groups
+    const shares = await this.prismaService.share.findMany({
+      where: { userId },
+      include: { expense: true },
+    });
 
+    const expenses = await this.prismaService.expense.findMany({
+      where: { id: { in: shares.map((share) => share.expenseId) } },
+      include: { shares: true, group: true },
+    });
+
+    if (!expenses || expenses.length === 0)
+    {
+      return [];
+    }
+
+    return expenses;
+  }
   async updateOne(userId: number, id: number, updateExpenseDto: UpdateExpenseDto, mode: ConversionMode = 'amount')
   {
     const expense = await this.prismaService.expense.findUnique({

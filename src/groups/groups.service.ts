@@ -75,6 +75,7 @@ export class GroupsService
 
     return new Group(group.id, group.name, memberIds, expenseIds);
   }
+
   // POST /group : Create group
   async create(creatorId: number, createGroupDto: CreateGroupDto): Promise<Group>
   {

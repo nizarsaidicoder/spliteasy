@@ -31,5 +31,5 @@
       "@src/*": ["src/*"]
     }
   },
-  "include": ["src/**/*.ts", "src/types/**/*.d.ts", "src/types/**/*.type.ts", "test/**/*.ts"]
+  "include": ["src/**/*.ts", "src/types/**/*.d.ts", "src/types/**/*.type.ts", "test/**/*.ts", "prisma/seed.ts"]
 }

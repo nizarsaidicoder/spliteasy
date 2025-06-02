@@ -34,6 +34,13 @@ export class ExpensesController
     return this.expenseService.getSomeOfGroup(user.sub, groupId);
   }
 
+  // GET /expense/user/:userId : Get all expenses for a user
+  @Get('/user/:userId')
+  async getSomeOfUser(@CurrentUser() user: UserPayload, @Param('userId', ParseIntPipe) userId: number): Promise<Expense[]>
+  {
+    return this.expenseService.getSomeOfUser(userId);
+  }
+
   // PATCH /expense/:id : Update an expense
   @Patch(':id')
   async updateOne(
