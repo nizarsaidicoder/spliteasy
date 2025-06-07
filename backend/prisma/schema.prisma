@@ -44,6 +44,7 @@ model Expense {
   description String?
   amount      Float
   categoryId  Int?
+  note        String?
   date        DateTime   @default(now())
   groupId     Int
   userId      Int
@@ -55,6 +56,8 @@ model Expense {
   @@index([groupId])
   @@index([userId])
 }
+
+
 
 model ExpenseCategory {
   id         Int        @default(autoincrement()) @id

@@ -16,6 +16,10 @@ export class UpdateExpenseDto
   @IsNumber()
   amount?: number;
 
+  @IsOptional()
+  @IsString()
+  note?: string;
+
   @Type(() => Date)
   @IsOptional()
   @IsDate()

@@ -65,6 +65,7 @@ export class ExpensesService
         userId: createExpenseDto.userId,
         date: createExpenseDto.date,
         categoryId: category ? category.id : undefined,
+        note: createExpenseDto.note,
         shares: {
           create: shares.map((share) => ({
             userId: share.userId,
@@ -211,6 +212,10 @@ export class ExpensesService
       updatePayload.category = {
         connect: { id: updateExpenseDto.categoryId },
       };
+    }
+    if (updateExpenseDto.note)
+    {
+      updatePayload.note = updateExpenseDto.note;
     }
 
     const updatedExpense = await this.prismaService.expense.update({

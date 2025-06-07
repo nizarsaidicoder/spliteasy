@@ -19,6 +19,10 @@ export class CreateExpenseDto
   date: Date;
 
   @IsOptional()
+  @IsString()
+  note?: string;
+
+  @IsOptional()
   @IsInt()
   categoryId?: number;
 

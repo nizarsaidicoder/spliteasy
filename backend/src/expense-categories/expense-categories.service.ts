@@ -8,7 +8,7 @@ export class ExpenseCategoriesService
 {
   constructor(private prismaService: PrismaService)
   {}
-  async createOne(createExpenseCategoryDto: CreateExpenseCategoryDto): Promise<any>
+  async createOne(createExpenseCategoryDto: CreateExpenseCategoryDto): Promise<ExpenseCategory>
   {
     return await this.prismaService.expenseCategory.create({
       data: {
@@ -17,7 +17,6 @@ export class ExpenseCategoriesService
       },
     });
   }
-
   async getAll(): Promise<ExpenseCategory[]>
   {
     return await this.prismaService.expenseCategory.findMany();
@@ -33,8 +32,13 @@ export class ExpenseCategoriesService
     }
     return category;
   }
-
-  async updateOne(id: number, updateExpenseCategoryDto: CreateExpenseCategoryDto): Promise<any>
+  async getByName(name: string): Promise<ExpenseCategory | null>
+  {
+    return await this.prismaService.expenseCategory.findFirst({
+      where: { name },
+    });
+  }
+  async updateOne(id: number, updateExpenseCategoryDto: CreateExpenseCategoryDto): Promise<ExpenseCategory>
   {
     const existingCategory = await this.prismaService.expenseCategory.findUnique({
       where: { id },
@@ -64,12 +68,6 @@ export class ExpenseCategoriesService
     }
     await this.prismaService.expenseCategory.delete({
       where: { id },
-    });
-  }
-  async getByName(name: string): Promise<any>
-  {
-    return await this.prismaService.expenseCategory.findFirst({
-      where: { name },
     });
   }
 }
