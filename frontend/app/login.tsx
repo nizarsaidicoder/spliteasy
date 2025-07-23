@@ -1,5 +1,8 @@
 import { useState } from "react";
 import { View, Text, TextInput, TouchableOpacity, StyleSheet } from "react-native";
+import { Button } from "tamagui";
+import { Input } from "tamagui";
+import { XStack, YStack } from "tamagui";
 
 export default function Login() {
   const [username, setUsername] = useState("");
@@ -10,25 +13,20 @@ export default function Login() {
   };
 
   return (
-    <View style={styles.container}>
+    <YStack width="90%" minHeight={250} overflow="hidden" gap="$2" margin="$3" padding="$2">
       <Text style={styles.title}>Hey !</Text>
 
       <Text style={styles.text}>Nom d'utilisateur ou adresse e-mail :</Text>
       <TextInput style={styles.input} placeholderTextColor="#999" value={username} onChangeText={setUsername} />
 
       <Text style={styles.text}>Mot de passe :</Text>
-      <TextInput
-        style={styles.input}
-        placeholderTextColor="#999"
-        secureTextEntry
-        value={password}
-        onChangeText={setPassword}
-      />
+      <Input size="$4" borderWidth={2} />
 
+      <Button>Lorem ipsum</Button>
       <TouchableOpacity style={styles.button} onPress={handleLogin}>
         <Text style={styles.buttonText}>Se connecter</Text>
       </TouchableOpacity>
-    </View>
+    </YStack>
   );
 }
 
