@@ -3,7 +3,9 @@ import { AppModule } from './app.module';
 import { ValidationPipe } from '@nestjs/common';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 
-async function bootstrap() {
+declare const module: any;
+async function bootstrap()
+{
   const app = await NestFactory.create(AppModule);
   app.useGlobalPipes(
     new ValidationPipe({
@@ -21,15 +23,21 @@ async function bootstrap() {
 
   // Setup Swagger
   const config = new DocumentBuilder()
-    .setTitle('My API')
-    .setDescription('The API description')
+    .setTitle('ColocGo API')
+    .setDescription('API documentation for ColocGo')
     .setVersion('1.0')
-    .addBearerAuth() // if you're using JWT auth
+    .addBearerAuth()
     .build();
 
   const document = SwaggerModule.createDocument(app, config);
 
   SwaggerModule.setup('api', app, document);
   await app.listen(process.env.PORT ?? 3000);
+
+  if (module.hot)
+  {
+    module.hot.accept();
+    module.hot.dispose(() => app.close());
+  }
 }
 bootstrap();
