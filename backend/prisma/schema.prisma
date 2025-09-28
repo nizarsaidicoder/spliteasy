@@ -1,9 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 generator client {
   provider = "prisma-client-js"
   output   = "../node_modules/.prisma/client"
@@ -15,64 +9,62 @@ datasource db {
 }
 
 model User {
-  id         Int        @default(autoincrement()) @id
-  username   String     @unique
-  email      String     @unique
-  firstName  String
-  lastName   String
-  password   String
-  avatar     String?
-  createdAt  DateTime   @default(now())
-  updatedAt  DateTime   @updatedAt
-  groups     Group[]    @relation("UserGroups")
-  expenses   Expense[]
-  shares     Share[]
+  id        Int       @id @default(autoincrement())
+  username  String    @unique
+  email     String    @unique
+  firstName String
+  lastName  String
+  password  String
+  avatar    String?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  expenses  Expense[]
+  shares    Share[]
+  groups    Group[]   @relation("UserGroups")
 }
 
 model Group {
-  id         Int        @default(autoincrement()) @id
-  name       String     
-  members    User[]     @relation("UserGroups")
-  createdAt  DateTime   @default(now())
-  updatedAt  DateTime   @updatedAt
-  expenses   Expense[]
+  id        Int       @id @default(autoincrement())
+  name      String
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  expenses  Expense[]
+  members   User[]    @relation("UserGroups")
 }
 
 model Expense {
-  id          Int        @default(autoincrement()) @id
+  id          Int              @id @default(autoincrement())
   name        String
   description String?
   amount      Float
   categoryId  Int?
   note        String?
-  date        DateTime   @default(now())
+  date        DateTime         @default(now())
   groupId     Int
   userId      Int
-  group       Group      @relation(fields: [groupId], references: [id])
-  user        User       @relation(fields: [userId], references: [id])
-  category    ExpenseCategory?  @relation(fields: [categoryId], references: [id])
+  category    ExpenseCategory? @relation(fields: [categoryId], references: [id])
+  group       Group            @relation(fields: [groupId], references: [id])
+  user        User             @relation(fields: [userId], references: [id])
   shares      Share[]
 
   @@index([groupId])
   @@index([userId])
 }
 
-
-
 model ExpenseCategory {
-  id         Int        @default(autoincrement()) @id
-  name       String     @unique
-  icon       String
-  expenses   Expense[]
+  id       Int       @id @default(autoincrement())
+  name     String    @unique
+  icon     String
+  expenses Expense[]
 }
 
 model Share {
-  id         Int        @default(autoincrement()) @id
-  userId     Int
-  expenseId  Int
-  amount     Float
-  user       User       @relation(fields: [userId], references: [id])
-  expense    Expense    @relation(fields: [expenseId], references: [id], onDelete: Cascade)
+  id        Int     @id @default(autoincrement())
+  userId    Int
+  expenseId Int
+  amount    Float
+  expense   Expense @relation(fields: [expenseId], references: [id], onDelete: Cascade)
+  user      User    @relation(fields: [userId], references: [id])
 
   @@unique([userId, expenseId])
 }
