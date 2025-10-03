@@ -1,5 +1,5 @@
 import { Link } from "expo-router";
-import { Text, View, StyleSheet, TouchableOpacity } from "react-native";
+import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 
 export default function Index() {
   return (
@@ -40,10 +40,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 25,
     alignItems: "center",
     marginVertical: 10,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 2,
+    boxShadow: "0px 2px 2px rgba(0, 0, 0, 0.1)",
     elevation: 2,
     width: "80%",
   },

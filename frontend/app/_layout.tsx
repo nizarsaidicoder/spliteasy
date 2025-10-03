@@ -34,9 +34,8 @@ export default function RootLayout() {
 const styles = StyleSheet.create({
   header: {
     backgroundColor: "#FEBB1B",
-    shadowColor: "transparent",
+    boxShadow: "none",
     elevation: 0,
-    shadowOpacity: 0,
     borderBottomWidth: 0,
   },
 });

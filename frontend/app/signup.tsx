@@ -1,5 +1,7 @@
+import { UserCreationData } from "@/types/user/";
 import { useState } from "react";
-import { View, Text, TextInput, TouchableOpacity, StyleSheet } from "react-native";
+import { StyleSheet, Text, TextInput, TouchableOpacity, View } from "react-native";
+import { signUp } from "../service/authentification";
 
 export default function Signup() {
   const [username, setUsername] = useState("");
@@ -7,9 +9,32 @@ export default function Signup() {
   const [password, setPassword] = useState("");
   const [firstname, setFirstname] = useState("");
   const [lastname, setLastname] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [signupError, setSignupError] = useState<string | null>(null);
 
-  const handleSignup = () => {
-    console.log("Signup:", { username, email, password, firstname, lastname });
+  const handleSignup = async () => {
+    setLoading(true);
+    setSignupError(null);
+    const userData: UserCreationData = {
+      username,
+      email,
+      password,
+      firstName: firstname,
+      lastName: lastname,
+    };
+
+    console.log("User data to sign up:", userData);
+
+    try {
+      const result = await signUp(userData);
+      console.log("Signup result:", result);
+    } catch (error: any) {
+      console.error(error);
+      setSignupError(error.message || "Erreur lors de l'inscription");
+    } finally {
+      setLoading(false);
+    }
+    
   };
 
   return (
