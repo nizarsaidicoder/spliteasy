@@ -2,7 +2,7 @@
 /dist
 /node_modules
 /build
-seeded_passwords.txt
+*_passwords.log
 
 # Logs
 logs

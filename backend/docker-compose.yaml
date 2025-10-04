@@ -1,29 +1,32 @@
-services:
-  postgres:
-    image: postgres:15
-    container_name: splitwise-db
-    restart: always
-    environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
-      POSTGRES_DB: splitwise
-    ports:
-      - '5433:5432'
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
+  services:
+    postgres:
+      image: postgres:15
+      container_name: splitwise-db
+      restart: always
+      environment:
+        POSTGRES_USER: postgres
+        POSTGRES_PASSWORD: postgres
+        POSTGRES_DB: splitwise
+      ports:
+        - '5432:5432'
+      volumes:
+        - postgres_data:/var/lib/postgresql/data
 
-  pgadmin:
-    image: dpage/pgadmin4
-    container_name: pgadmin4_container
-    restart: always
-    ports:
-      - '8888:80'
-    environment:
-      PGADMIN_DEFAULT_EMAIL: user-name@domain-name.com
-      PGADMIN_DEFAULT_PASSWORD: strong-password
-    volumes:
-      - pgadmin-data:/var/lib/pgadmin
+    app:
+      build: .
+      container_name: splitwise-app
+      restart: always
+      ports:
+        - '3333:3333'
+      environment:
+        DATABASE_URL: postgres://postgres:postgres@postgres:5432/splitwise
+        JWT_SECRET: "super-secret-key"
+        PORT: 3333
+      depends_on:
+        - postgres
+      env_file:
+        - .env
 
-volumes:
-  postgres_data:
-  pgadmin-data:
+  volumes:
+    postgres_data:
+    pgadmin-data:

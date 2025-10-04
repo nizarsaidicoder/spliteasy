@@ -1,0 +1,14 @@
+node_modules
+dist
+.env
+prisma/dev.db
+prisma/dev.db-journal
+npm-debug.log
+Dockerfile
+docker-compose.yml
+.git
+.gitignore
+.idea
+.vscode
+coverage
+test

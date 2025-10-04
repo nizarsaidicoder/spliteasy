@@ -83,7 +83,7 @@ async function seed()
     }),
   );
 
-  fs.writeFileSync('./seeded_passwords.txt', userPasswords.map((u) => `${u.username} (${u.email}): ${u.password}`).join('\n'), 'utf8');
+  fs.writeFileSync('./seeded_passwords.log', userPasswords.map((u) => `${u.username} (${u.email}): ${u.password}`).join('\n'), 'utf8');
 
   const groups = await Promise.all(
     Array.from({ length: 5 }).map(() =>
